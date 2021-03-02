@@ -14,7 +14,6 @@ async function WebCrawler(defaultUrl, queueOfLinksToVisit, allVisitedLinksMap) {
     };
 
     while (!queueOfLinksToVisit.isEmpty()) {
-
         const linkToVisit = queueOfLinksToVisit.dequeue();
         const urlToVisit = linkToVisit.getUrl();
 
@@ -23,7 +22,7 @@ async function WebCrawler(defaultUrl, queueOfLinksToVisit, allVisitedLinksMap) {
 
             try {
                 const textHtml = await fetch(urlToVisit, params)
-                    .then(response => response.text())
+                    .then(response => response.text());
 
                 const parsedHTML = cheerio.load(textHtml);
                 const allLinksFoundInHtml = parsedHTML('a');
@@ -35,15 +34,15 @@ async function WebCrawler(defaultUrl, queueOfLinksToVisit, allVisitedLinksMap) {
 
                         const innerUrl = utils.createValidLink(defaultUrl, href);
 
-                        const innerLink = allVisitedLinksMap.has(innerUrl)
+                        const InnerLink = allVisitedLinksMap.has(innerUrl)
                             ? allVisitedLinksMap.get(innerUrl)
                             : new Link(innerUrl);
 
-                        if (innerLink.getUrl() !== linkToVisit.getUrl()) {
-                            linkToVisit.addInnerLink(innerLink);
+                        if (InnerLink.getUrl() !== linkToVisit.getUrl()) {
+                            linkToVisit.addInnerLink(InnerLink);
                         }
 
-                        queueOfLinksToVisit.enqueue(innerLink);
+                        queueOfLinksToVisit.enqueue(InnerLink);
                     }
                 });
 
