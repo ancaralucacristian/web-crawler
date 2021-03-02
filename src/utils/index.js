@@ -1,9 +1,12 @@
-function validateLink(link, defaultUrl) {
+const fs = require('fs');
+
+
+function validateLink(link = '', defaultUrl = '', basis = '') {
     if (!link) {
         return false;
     }
 
-    if (link.includes(defaultUrl)) {
+    if (link.startsWith(defaultUrl)) {
         return true;
     }
 
@@ -35,41 +38,42 @@ function validateLink(link, defaultUrl) {
     return true;
 }
 
-function createValidLink(defaultUrl, href) {
-    if (href.includes(defaultUrl)) {
-        return href;
-    } else {
-        if (defaultUrl[defaultUrl.length - 1] === '/' && href[0] === '/') {
-            href = href.slice(1);
+function createValidLink(href = '', defaultUrl) {
+    try {
+        if (href[href.length - 1] === '/') {
+            href = href.slice(0, href.length - 1)
         }
 
-        if (href.startsWith('..')) {
-            href = href.replace(/../g, '');
+        if (href.includes(defaultUrl)) {
+            return href;
+        } else {
+            if (defaultUrl[defaultUrl.length - 1] === '/' && href[0] === '/') {
+                href = href.slice(1);
+            }
+
+
+            if (href.startsWith('..')) {
+                href = href.replace(/../g, '');
+            }
+
+            return defaultUrl + href;
         }
-
-        // if (href.includes('\'')) {
-        //     href = href.replace(/\'/g, "\\'");
-        // }
-
-        return defaultUrl + href;
+    } catch (err) {
+        console.log(`An error has ocurred while creating valid link: ${err}`);
     }
 }
 
-
-function illustrate(linksMap, errorsMap) {
-    console.log('****All links****');
-    linksMap.forEach((value) => {
-        value.innerLinks = value.innerLinks.map(l => l.url);
-        console.log(value.url, ': ', value.innerLinks);
-    })
-
-    console.log('\n\n****All errors****');
-    console.log(errorsMap)
-
+function writeToFile(linksMap) {
+    fs.writeFile("output.json", JSON.stringify(linksMap), (err) => {
+        if (err) {
+            console.log(err);
+        }
+        console.log("Successfully crawled the website!");
+    });
 }
 
 module.exports = {
     validateLink,
     createValidLink,
-    illustrate
+    writeToFile
 }

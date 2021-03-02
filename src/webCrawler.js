@@ -2,9 +2,8 @@ const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 
 const utils = require('./utils');
-const Link = require('./utils/link');
 
-async function WebCrawler(defaultUrl, queueOfLinksToVisit, allVisitedLinksMap) {
+async function WebCrawler(defaultUrl, basis, queueOfLinksToVisit, allVisitedLinksMap) {
     const linksWithErrors = new Map();
 
     const params = {
@@ -13,13 +12,11 @@ async function WebCrawler(defaultUrl, queueOfLinksToVisit, allVisitedLinksMap) {
         }
     };
 
-    while (!queueOfLinksToVisit.isEmpty()) {
-        const linkToVisit = queueOfLinksToVisit.dequeue();
-        const urlToVisit = linkToVisit.getUrl();
+    while (!queueOfLinksToVisit.isEmpty() && new Date < new Date('2021-03-02T21:16:02.352Z')) {
+        const urlToVisit = queueOfLinksToVisit.dequeue();
 
-        if (!allVisitedLinksMap.has(urlToVisit)) {
-            allVisitedLinksMap.set(urlToVisit, linkToVisit);
-
+        if (!allVisitedLinksMap[urlToVisit]) {
+            const listOfInnerLinks = new Set();
             try {
                 const textHtml = await fetch(urlToVisit, params)
                     .then(response => response.text());
@@ -30,28 +27,24 @@ async function WebCrawler(defaultUrl, queueOfLinksToVisit, allVisitedLinksMap) {
                 parsedHTML(allLinksFoundInHtml).each((i, link) => {
                     const href = parsedHTML(link).attr('href');
 
-                    if (utils.validateLink(href)) {
+                    if (utils.validateLink(href, defaultUrl, basis)) {
+                        const innerUrl = utils.createValidLink(href, defaultUrl);
 
-                        const innerUrl = utils.createValidLink(defaultUrl, href);
-
-                        const InnerLink = allVisitedLinksMap.has(innerUrl)
-                            ? allVisitedLinksMap.get(innerUrl)
-                            : new Link(innerUrl);
-
-                        if (InnerLink.getUrl() !== linkToVisit.getUrl()) {
-                            linkToVisit.addInnerLink(InnerLink);
-                        }
-
-                        queueOfLinksToVisit.enqueue(InnerLink);
+                        listOfInnerLinks.add(innerUrl);
+                        queueOfLinksToVisit.enqueue(innerUrl);
                     }
                 });
 
             } catch (err) {
                 linksWithErrors.set(urlToVisit, `cannot be accessed, will just skip it. Error: ${err}`);
+                console.log(urlToVisit, `cannot be accessed, will just skip it. Error: ${err}`);
             }
+
+            allVisitedLinksMap[urlToVisit] = Array.from(listOfInnerLinks);
         }
     }
-    utils.illustrate(allVisitedLinksMap, linksWithErrors);
+
+    utils.writeToFile(allVisitedLinksMap);
 }
 
 module.exports = WebCrawler;

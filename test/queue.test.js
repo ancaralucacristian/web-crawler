@@ -31,18 +31,4 @@ describe.only('Tests of the queue', () => {
         expect(queue.elements).toEqual([2,3]);
         expect(queue.elements.length).toEqual(2);
     })
-
-    // test.only('When trying to enqueue a element that is already in the queue, it is not added  ', () => {
-    //     const queue = new Queue();
-
-    //     queue.enqueue(1);
-    //     queue.enqueue(2);
-    //     queue.enqueue(3);
-    //     expect(queue.peek()).toEqual(1);
-
-    //     expect(queue.elements).toEqual([1,2,3]);
-    //     expect(queue.elements.length).toEqual(3);
-    // })
-
-
 })

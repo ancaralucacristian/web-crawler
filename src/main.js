@@ -3,26 +3,21 @@
 require('dotenv').config()
 
 
-const Link = require('./utils/link');
 const Queue = require('./utils/queue');
-const WebCrawler = require('./webCrawler');
-
+const webCrawler = require('./webCrawler');
 
 const START_URL = process.env.START_URL;
+const DOMAIN_BASIS = process.env.DOMAIN_BASIS;
 
 
 async function main() {
-    console.log(`Started crawling the ${START_URL}`);
+    console.log(`Started crawling: ${START_URL}`);
     const queueOfLinksToVisit = new Queue();
-    const allVisitedLinksMap = new Map();
+    const allVisitedLinksMap = {};
 
-    setInterval(() => console.log(`Found ${allVisitedLinksMap.size} so far.`) , 10000);
+    queueOfLinksToVisit.enqueue(START_URL);
 
-    const startLink = new Link(START_URL);
-
-    queueOfLinksToVisit.enqueue(startLink);
-
-    WebCrawler(START_URL, queueOfLinksToVisit, allVisitedLinksMap);
+    webCrawler(START_URL, DOMAIN_BASIS, queueOfLinksToVisit, allVisitedLinksMap);
 }
 
 main();

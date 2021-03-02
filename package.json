@@ -4,8 +4,8 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "start": "node src/main.js ",
-    "start-export-file": "node src/main.js > output.txt  ",
+    "start": "node src/main.js",
+    "export-to-file": "node src/main.js",
     "test": "jest"
   },
   "author": "Anca Cristian",
@@ -13,9 +13,12 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.5",
     "dotenv": "^8.2.0",
+    "fs": "0.0.1-security",
     "got": "^11.8.2",
-    "jest": "^26.6.3",
     "node-html-parser": "^3.0.3",
     "parse5": "^6.0.1"
+  },
+  "devDependencies": {
+    "jest": "^26.6.3"
   }
 }
