@@ -38,6 +38,10 @@ function validateLink(link = '', defaultUrl = '', urlBase = '') {
         return false;
     }
 
+    if (link.startsWith('/cdn-cgi') || link.startsWith('cdn-cgi')) {
+        return false;
+    }
+
     return true;
 }
 
@@ -59,7 +63,7 @@ function createValidLink(href = '', defaultUrl) {
                 href = href.replace(/../g, '');
             }
 
-            return defaultUrl + escape(href);
+            return defaultUrl + href;
         }
     } catch (err) {
         console.log(`An error has ocurred while creating valid link: ${err}`);

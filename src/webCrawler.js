@@ -33,10 +33,10 @@ async function WebCrawler(defaultUrl, urlBase, queueOfLinksToVisit, allVisitedLi
                 allLinksFoundInHtml.each((i, link) => {
                     const href = $(link).attr('href');
 
-                    if (utils.validateLink(href, defaultUrl, urlBase)) {
-                        const innerUrl = utils.createValidLink(href, defaultUrl);
+                    const innerUrl = utils.createValidLink(href, defaultUrl);
+                    listOfInnerLinks.add(innerUrl);
 
-                        listOfInnerLinks.add(innerUrl);
+                    if (utils.validateLink(href, defaultUrl, urlBase)) {
                         queueOfLinksToVisit.enqueue(innerUrl);
                     }
                 });
