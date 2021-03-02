@@ -47,12 +47,16 @@ async function WebCrawler(defaultUrl, urlBase, queueOfLinksToVisit, allVisitedLi
                 console.log(urlToVisit, ' ', message);
             }
 
-            allVisitedLinksMap[urlToVisit] = Array.from(listOfInnerLinks);
+            const innerLinks = Array.from(listOfInnerLinks);
+
+            allVisitedLinksMap[urlToVisit] = { innerLinks: innerLinks, count: innerLinks.length };
+
+            console.log(JSON.stringify({ url: urlToVisit, innerLinksCount: innerLinks.length }));
         }
     }
 
     utils.writeToFile(allVisitedLinksMap);
-    console.log(`Some links were not processed due to errors : ${JSON.stringify(linksWithErrors, undefined, 4) || 'none'}`)
+    console.log(`Some links were not processed due to errors: ${JSON.stringify(linksWithErrors, undefined, 4) || 'none'}`)
 }
 
 module.exports = WebCrawler;

@@ -67,11 +67,13 @@ function createValidLink(href = '', defaultUrl) {
 }
 
 function writeToFile(linksMap) {
-    fs.writeFile(process.env.OUTPUT_FILE_NAME, JSON.stringify(linksMap), (err) => {
+    const count = Object.entries(linksMap).length;
+
+    fs.writeFile(process.env.OUTPUT_FILE_NAME, JSON.stringify({ list: linksMap, count: count }), (err) => {
         if (err) {
             console.log(err);
         }
-        console.log(`Successfully crawled the website, total length is ${Object.entries(linksMap).length}!`);
+        console.log(`Successfully scanned the website, total length of links is ${count}!`);
     });
 }
 
