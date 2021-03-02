@@ -3,31 +3,37 @@ const cheerio = require('cheerio');
 
 const utils = require('./utils');
 
-async function WebCrawler(defaultUrl, basis, queueOfLinksToVisit, allVisitedLinksMap) {
-    const linksWithErrors = new Map();
 
+async function fetchData(urlToVisit) {
     const params = {
         headers: {
             Accept: 'text/html*'
         }
     };
+    const textHtml = await fetch(urlToVisit, params)
+        .then(response => response.text());
 
-    while (!queueOfLinksToVisit.isEmpty() && new Date < new Date('2021-03-02T21:16:02.352Z')) {
+    return cheerio.load(textHtml);
+}
+
+
+async function WebCrawler(defaultUrl, urlBase, queueOfLinksToVisit, allVisitedLinksMap) {
+    const linksWithErrors = {};
+
+    while (!queueOfLinksToVisit.isEmpty()) {
         const urlToVisit = queueOfLinksToVisit.dequeue();
 
         if (!allVisitedLinksMap[urlToVisit]) {
             const listOfInnerLinks = new Set();
             try {
-                const textHtml = await fetch(urlToVisit, params)
-                    .then(response => response.text());
+                const $ = await fetchData(urlToVisit);
 
-                const parsedHTML = cheerio.load(textHtml);
-                const allLinksFoundInHtml = parsedHTML('a');
+                const allLinksFoundInHtml = $('a');
 
-                parsedHTML(allLinksFoundInHtml).each((i, link) => {
-                    const href = parsedHTML(link).attr('href');
+                allLinksFoundInHtml.each((i, link) => {
+                    const href = $(link).attr('href');
 
-                    if (utils.validateLink(href, defaultUrl, basis)) {
+                    if (utils.validateLink(href, defaultUrl, urlBase)) {
                         const innerUrl = utils.createValidLink(href, defaultUrl);
 
                         listOfInnerLinks.add(innerUrl);
@@ -36,8 +42,9 @@ async function WebCrawler(defaultUrl, basis, queueOfLinksToVisit, allVisitedLink
                 });
 
             } catch (err) {
-                linksWithErrors.set(urlToVisit, `cannot be accessed, will just skip it. Error: ${err}`);
-                console.log(urlToVisit, `cannot be accessed, will just skip it. Error: ${err}`);
+                const message = `cannot be accessed, will just skip it. Error: ${err}`;
+                linksWithErrors[urlToVisit] = message;
+                console.log(urlToVisit, ' ', message);
             }
 
             allVisitedLinksMap[urlToVisit] = Array.from(listOfInnerLinks);
@@ -45,6 +52,7 @@ async function WebCrawler(defaultUrl, basis, queueOfLinksToVisit, allVisitedLink
     }
 
     utils.writeToFile(allVisitedLinksMap);
+    console.log(`Some links were not processed due to errors : ${JSON.stringify(linksWithErrors, undefined, 4) || 'none'}`)
 }
 
 module.exports = WebCrawler;

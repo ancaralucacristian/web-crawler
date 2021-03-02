@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 
-function validateLink(link = '', defaultUrl = '', basis = '') {
+function validateLink(link = '', defaultUrl = '', urlBase = '') {
     if (!link) {
         return false;
     }
@@ -26,12 +26,15 @@ function validateLink(link = '', defaultUrl = '', basis = '') {
         return false;
     }
 
-
     if (/(javascript:[^\s]+)/g.test(link)) {
         return false;
     }
 
-    if (/monzo:\/\/[\s]?/g.test(link)) {
+    if (link.startsWith(`${urlBase}:`)) {
+        return false;
+    }
+
+    if (link.startsWith(`whatsapp:`)) {
         return false;
     }
 
@@ -56,7 +59,7 @@ function createValidLink(href = '', defaultUrl) {
                 href = href.replace(/../g, '');
             }
 
-            return defaultUrl + href;
+            return defaultUrl + escape(href);
         }
     } catch (err) {
         console.log(`An error has ocurred while creating valid link: ${err}`);
@@ -64,11 +67,11 @@ function createValidLink(href = '', defaultUrl) {
 }
 
 function writeToFile(linksMap) {
-    fs.writeFile("output.json", JSON.stringify(linksMap), (err) => {
+    fs.writeFile(process.env.OUTPUT_FILE_NAME, JSON.stringify(linksMap), (err) => {
         if (err) {
             console.log(err);
         }
-        console.log("Successfully crawled the website!");
+        console.log(`Successfully crawled the website, total length is ${Object.entries(linksMap).length}!`);
     });
 }
 

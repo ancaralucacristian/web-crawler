@@ -7,7 +7,7 @@ const Queue = require('./utils/queue');
 const webCrawler = require('./webCrawler');
 
 const START_URL = process.env.START_URL;
-const DOMAIN_BASIS = process.env.DOMAIN_BASIS;
+const DOMAIN_BASE = process.env.DOMAIN_BASE;
 
 
 async function main() {
@@ -17,7 +17,7 @@ async function main() {
 
     queueOfLinksToVisit.enqueue(START_URL);
 
-    webCrawler(START_URL, DOMAIN_BASIS, queueOfLinksToVisit, allVisitedLinksMap);
+    webCrawler(START_URL, DOMAIN_BASE, queueOfLinksToVisit, allVisitedLinksMap);
 }
 
 main();
